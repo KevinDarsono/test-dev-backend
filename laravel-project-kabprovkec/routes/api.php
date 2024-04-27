@@ -19,5 +19,6 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 Route::get('/project/json', [ControllerJson::class, 'JsonData']);
-Route::get('/project/json/update-average', [ControllerJson::class, 'JsonUpdateAverage']);
 Route::get('/project/json/update-sum', [ControllerJson::class, 'JsonUpdateSUM']);
+Route::get('/project/json/desa', [ControllerJson::class, 'JsonDataDesa']);
+Route::get('/project/json/data-kab', [ControllerJson::class, 'JsonDataKab']);

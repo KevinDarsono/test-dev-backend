@@ -15,49 +15,8 @@ class ControllerJson extends Controller
         return response()->json($data);
     }
 
-    public function jsonUpdateAverage()
+    public function JsonUpdateSUM()
     {
-        $jsonResponse = $this->jsonData();
-        $data = $jsonResponse->getData(true);
-
-        $totalProjectKabupaten = 0;
-        $countKabupaten = count($data['kabupaten']);
-
-        foreach ($data['kabupaten'] as &$kabupaten) {
-            $totalProjectKecamatan = 0;
-            $countKecamatan = 0;
-
-            foreach ($kabupaten['kecamatan'] as &$kecamatan) {
-                $totalProjectDesa = 0;
-                $totalDesa = 0;
-
-                foreach ($kecamatan['desa'] as &$desa) {
-                    $totalProjectDesa += $desa['nilai-project'];
-                    $totalDesa++;
-                }
-
-                $avgProjectKecamatan = $totalProjectDesa / $totalDesa;
-                $kecamatan['nilai-project'] = $avgProjectKecamatan;
-
-                $totalProjectKecamatan += $avgProjectKecamatan;
-                $countKecamatan++;
-            }
-
-            $avgKabupaten = $totalProjectKecamatan / $countKecamatan;
-            $kabupaten['nilai-project'] = $avgKabupaten;
-
-            $totalProjectKabupaten += $avgKabupaten;
-        }
-
-        $avgProvinsi = $totalProjectKabupaten / $countKabupaten;
-        $data['nilai-project'] = $avgProvinsi;
-
-
-        return response()->json($data);
-    }
-
-
-    public function JsonUpdateSUM(){
 
         $jsonData = $this->JsonData();
         $data = $jsonData->getData(true);
@@ -86,6 +45,61 @@ class ControllerJson extends Controller
         $data['nilai-project'] = $projectProv;
 
         return response()->json($data);
+    }
 
+
+    public function JsonDataDesa()
+    {
+
+        $jsonData = $this->jsonData();
+        $data = $jsonData->getData(true);
+
+        $dataDesa = [];
+
+        foreach ($data['kabupaten'] as &$kab) {
+            foreach ($kab['kecamatan'] as &$kec) {
+                foreach ($kec['desa'] as &$desa) {
+                    if ($desa['nilai-project'] > 300) {
+                        $dataDesa[] = $desa;
+                    }
+                }
+            }
+        }
+
+        return response()->json($dataDesa);
+    }
+
+    public function JsonDataKab()
+    {
+
+        $jsonData = $this->jsonData();
+        $data = $jsonData->getData(true);
+
+        $tampung = [];
+
+        foreach ($data['kabupaten'] as &$kab) {
+            if ($kab['nama'] == 'kab2') {
+                $projectKab = 0;
+                foreach($kab['kecamatan'] as &$kec){
+                    $projectKec = 0;
+                    $projectDesa = 0;
+
+                    foreach($kec['desa'] as $desa){
+                        $projectDesa += $desa['nilai-project'];
+                    }
+                    $projectKec += $projectDesa;
+                    $kec['nilai-project'] = $projectKec;
+
+                    $projectKab += $projectKec;
+                }
+                $tampung = [
+                    'nama' => $kab['nama'],
+                    'nilai-project' => $projectKab,
+
+                ];
+            }
+        }
+
+        return response()->json($tampung);
     }
 }
